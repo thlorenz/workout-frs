@@ -1,0 +1,22 @@
+PODS:
+  - Flutter (1.0.0)
+  - workout_ffi (0.0.1):
+    - Flutter
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - workout_ffi (from `.symlinks/plugins/workout_ffi/ios`)
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  workout_ffi:
+    :path: ".symlinks/plugins/workout_ffi/ios"
+
+SPEC CHECKSUMS:
+  Flutter: 434fef37c0980e73bb6479ef766c45957d4b510c
+  workout_ffi: b077fde12c9e6983bb2557ca213a4664690c347e
+
+PODFILE CHECKSUM: aafe91acc616949ddb318b77800a7f51bffa2a4c
+
+COCOAPODS: 1.10.1
