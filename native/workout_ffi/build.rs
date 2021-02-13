@@ -26,9 +26,8 @@ fn main() {
         .build()
         .unwrap();
 
-    let _bindings = codegen.generate().unwrap();
-    // TODO: enable once we got flutter plugin package
-    /* bindings
-    .write_to_file("../../packages/worker_ffi/lib/ffi.dart")
-    .unwrap(); */
+    let bindings = codegen.generate().unwrap();
+    bindings
+        .write_to_file("../../packages/workout_ffi/lib/ffi.dart")
+        .unwrap();
 }
