@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:workout_ffi/workout_ffi.dart';
 
 void main() {
   runApp(MyApp());
@@ -21,6 +22,7 @@ class MyApp extends StatelessWidget {
 class StartPage extends StatefulWidget {
   StartPage({Key key, this.title}) : super(key: key);
   final String title;
+  final workout = Workout();
 
   @override
   _StartPageState createState() => _StartPageState();
@@ -31,7 +33,7 @@ class _StartPageState extends State<StartPage> {
 
   void _incrementCounter() {
     setState(() {
-      _counter++;
+      _counter += widget.workout.add(_counter, 1);
     });
   }
 

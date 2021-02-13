@@ -29,10 +29,10 @@ Ensure to add the `ffi` lib as a dependency of the plugin and then run:
 (cd packages/workout_ffi && flutter pub get)
 ```
 
-Modify ios setup to make things work, see [TODO commit link here]():
+Modify ios setup to make things work, see [this commit](https://github.com/thlorenz/workout-frs/commit/f2e062ac1d9d0299fae46d28181207e220b218d2):
 
 - ios/Classes/SwiftWorkoutFfiPlugin.swift
 - ios/workout_ffi.podspec
 
 _In some cases it helps to run `flutter clean` if the `add` method (or whichever you are
-exposing) is not found.
+exposing) is not found_.
