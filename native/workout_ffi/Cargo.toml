@@ -1,0 +1,16 @@
+[package]
+name = "workout_ffi"
+version = "0.1.0"
+authors = ["Thorsten Lorenz <thlorenz@gmx.de>"]
+edition = "2018"
+
+[lib]
+name = "workout_ffi"
+crate-type = ["staticlib"]
+
+[dependencies]
+workout = { path = "../workout" }
+
+[build-dependencies]
+cbindgen = "0.14.3"
+dart-bindgen = "0.1.7"
