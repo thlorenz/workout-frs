@@ -234,8 +234,9 @@ category = "Build"
 dependencies = ["macos-build", "macos-release", "post-macos"]
 
 [tasks.macos-build]
-condition = { platforms = ["mac"], env_true = ["DEV"] }
 description = "Build macos targets."
+condition = { platforms = ["mac"], env_true = ["DEV"] }
+env = {  MACOSX_DEPLOYMENT_TARGET= "10.11" }
 category = "Build"
 command = "cargo"
 args = ["build"]
@@ -244,8 +245,9 @@ dependencies = [
 ]
 
 [tasks.macos-release]
-condition = { platforms = ["mac"], env_true = ["RELEASE"] }
 description = "Build macos targets in release mode."
+condition = { platforms = ["mac"], env_true = ["RELEASE"] }
+env = {  MACOSX_DEPLOYMENT_TARGET= "10.11" }
 category = "Build"
 command = "cargo"
 args = ["build", "--release"]
@@ -336,6 +338,8 @@ script = [
       crate_type = set "cdylib"
     elseif ${is_ios}
       crate_type = set "staticlib"
+    elseif ${is_macos}
+      crate_type = set "cdylib"
     else
       crate_type = set "rlib"
     end
