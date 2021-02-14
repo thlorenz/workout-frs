@@ -16,6 +16,7 @@ fn main() {
     let config = DynamicLibraryConfig {
         ios: DynamicLibraryCreationMode::Executable.into(),
         android: DynamicLibraryCreationMode::open("libworkout_ffi.so").into(),
+        macos: DynamicLibraryCreationMode::open("libworkout_ffi.dylib").into(),
         ..Default::default()
     };
 

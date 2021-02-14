@@ -20,7 +20,7 @@ cargo new --lib native/workout-ffi
 Flutter plugin package created via:
 
 ```sh
-flutter create  --platforms ios,android --template=plugin packages/workout_ffi
+flutter create  --platforms ios,android,macos --template=plugin packages/workout_ffi
 ```
 
 Ensure to add the `ffi` lib as a dependency of the plugin and then run:

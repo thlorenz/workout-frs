@@ -223,7 +223,57 @@ env = { TARGET_OS = "ios" }
 run_task = "setup-crate-type"
 
 ###############################
+# MAC OS
+###############################
+[tasks.macos]
+description = "build macos targets"
+category = "Build"
+dependencies = ["macos-build", "macos-release", "post-macos"]
+
+[tasks.macos-build]
+condition = { platforms = ["mac"], env_true = ["DEV"] }
+description = "Build macos targets."
+category = "Build"
+command = "cargo"
+args = ["build"]
+dependencies = [
+    "setup-crate-type-macos",
+]
+
+[tasks.macos-release]
+condition = { platforms = ["mac"], env_true = ["RELEASE"] }
+description = "Build macos targets in release mode."
+category = "Build"
+command = "cargo"
+args = ["build", "--release"]
+dependencies = [
+    "setup-crate-type-macos",
+]
+
+[tasks.post-macos]
+script_runner = "@duckscript"
+condition = { platforms = ["mac"] }
+script = [
+    """
+    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/target/${LIB_OUT_DIR}/lib${CARGO_MAKE_CRATE_FS_NAME}.dylib \
+    ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/packages/${CARGO_MAKE_CRATE_FS_NAME}/macos/lib${CARGO_MAKE_CRATE_FS_NAME}.dylib
+    """,
+    """
+    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/native/${CARGO_MAKE_CRATE_CURRENT_WORKSPACE_MEMBER}/binding.h \
+    ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/packages/${CARGO_MAKE_CRATE_FS_NAME}/macos/Classes/binding.h
+    """,
+]
+dependencies = ["restore-crate-type"]
+
+[tasks.setup-crate-type-macos]
+private = true
+env = { TARGET_OS = "macos" }
+run_task = "setup-crate-type"
+
+
+###############################
 # Copy Android *.so lib
+# - used by all android targets
 ###############################
 
 [tasks.copy-lib]
@@ -240,7 +290,7 @@ script = [
 
 ###############################
 # Temporary crate type override
-# - used both by android and ios targets
+# - used both by android, macos and ios targets
 ###############################
 
 [tasks.setup-crate-type]
@@ -253,10 +303,13 @@ script = [
     os = get_env TARGET_OS
     is_android = eq ${os} "android"
     is_ios = eq ${os} "ios"
+    is_macos = eq ${os} "macos"
     if ${is_android}
       crate_type = set "cdylib"
     elseif ${is_ios}
       crate_type = set "staticlib"
+    elseif ${is_macos}
+      crate_type = set "cdylib"
     else
       crate_type = set "rlib"
     end
