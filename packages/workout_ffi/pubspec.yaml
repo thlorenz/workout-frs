@@ -25,3 +25,5 @@ flutter:
         pluginClass: WorkoutFfiPlugin
       ios:
         pluginClass: WorkoutFfiPlugin
+      macos:
+        pluginClass: WorkoutFfiPlugin
