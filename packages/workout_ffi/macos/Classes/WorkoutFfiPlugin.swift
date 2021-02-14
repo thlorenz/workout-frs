@@ -16,4 +16,8 @@ public class WorkoutFfiPlugin: NSObject, FlutterPlugin {
       result(FlutterMethodNotImplemented)
     }
   }
+
+  public static func dummyMethodToEnforceBundling() {
+    add(40, 2)
+  }
 }
