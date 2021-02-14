@@ -48,3 +48,8 @@ app.*.map.json
 # Rust
 target/
 native/**/binding.h
+
+# Binding Related
+**/android/src/main/jniLibs/
+**/ios/Classes/binding.h
+**/ios/libworkout_ffi.a

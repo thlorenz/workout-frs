@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:workout_ffi/workout_ffi.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(WorkoutApp());
 }
 
-class MyApp extends StatelessWidget {
+class WorkoutApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -14,21 +14,21 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: StartPage(title: 'Workout Configuration'),
+      home: ConfigPage(title: 'Workout Configuration'),
     );
   }
 }
 
-class StartPage extends StatefulWidget {
-  StartPage({Key key, this.title}) : super(key: key);
+class ConfigPage extends StatefulWidget {
+  ConfigPage({Key key, this.title}) : super(key: key);
   final String title;
   final workout = Workout();
 
   @override
-  _StartPageState createState() => _StartPageState();
+  _ConfigPageState createState() => _ConfigPageState();
 }
 
-class _StartPageState extends State<StartPage> {
+class _ConfigPageState extends State<ConfigPage> {
   int _counter = 0;
 
   void _incrementCounter() {
