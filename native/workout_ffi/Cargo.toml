@@ -6,7 +6,7 @@ edition = "2018"
 
 [lib]
 name = "workout_ffi"
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "staticlib"]
 
 [dependencies]
 workout = { path = "../workout" }

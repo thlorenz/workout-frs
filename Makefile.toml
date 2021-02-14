@@ -23,19 +23,16 @@ dependencies = [ "ensure-global-deps" ]
 description = "Build emulator android target"
 category = "Build"
 dependencies = [
-    "setup-crate-type-android",
     "pre-android",
     "android-i686",
     "android-i686-release",
     "post-android-i686",
-    "post-android"
 ]
 
 [tasks.android-all]
 description = "Build all android targets."
 category = "Build"
 dependencies = [
-    "setup-crate-type-android",
     "pre-android",
     "android-aarch64",
     "android-aarch64-release",
@@ -49,7 +46,7 @@ dependencies = [
     "android-x86_64",
     "android-x86_64-release",
     "post-android-x86_64",
-    "post-android"
+    # "post-android"
 ]
 
 #
@@ -65,14 +62,6 @@ script = '''
     mkdir ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/packages/${CARGO_MAKE_CRATE_FS_NAME}/android/src/main/jniLibs/x86
     mkdir ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/packages/${CARGO_MAKE_CRATE_FS_NAME}/android/src/main/jniLibs/x86_64
 '''
-
-[tasks.setup-crate-type-android]
-private = true
-env = { TARGET_OS = "android" }
-run_task = "setup-crate-type"
-
-[tasks.post-android]
-dependencies = ["restore-crate-type"]
 
 #
 # 2. Build Android Target(s)
@@ -191,9 +180,6 @@ description = "Build ios targets."
 category = "Build"
 command = "cargo"
 args = ["lipo"]
-dependencies = [
-    "setup-crate-type-ios",
-]
 
 [tasks.ios-release]
 condition = { platforms = ["mac"], env_true = ["RELEASE"] }
@@ -201,9 +187,6 @@ description = "Build ios targets."
 category = "Build"
 command = "cargo"
 args = ["lipo", "--release"]
-dependencies = [
-    "setup-crate-type-ios",
-]
 
 [tasks.post-ios]
 script_runner = "@duckscript"
@@ -218,12 +201,6 @@ script = [
     ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/packages/${CARGO_MAKE_CRATE_FS_NAME}/ios/Classes/binding.h
     """,
 ]
-dependencies = ["restore-crate-type"]
-
-[tasks.setup-crate-type-ios]
-private = true
-env = { TARGET_OS = "ios" }
-run_task = "setup-crate-type"
 
 ###############################
 # MAC OS
@@ -240,9 +217,6 @@ env = {  MACOSX_DEPLOYMENT_TARGET= "10.11" }
 category = "Build"
 command = "cargo"
 args = ["build"]
-dependencies = [
-    "setup-crate-type-macos",
-]
 
 [tasks.macos-release]
 description = "Build macos targets in release mode."
@@ -251,9 +225,6 @@ env = {  MACOSX_DEPLOYMENT_TARGET= "10.11" }
 category = "Build"
 command = "cargo"
 args = ["build", "--release"]
-dependencies = [
-    "setup-crate-type-macos",
-]
 
 [tasks.post-macos]
 script_runner = "@duckscript"
@@ -268,13 +239,6 @@ script = [
     ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/packages/${CARGO_MAKE_CRATE_FS_NAME}/macos/Classes/binding.h
     """,
 ]
-dependencies = ["restore-crate-type"]
-
-[tasks.setup-crate-type-macos]
-private = true
-env = { TARGET_OS = "macos" }
-run_task = "setup-crate-type"
-
 
 ###############################
 # Copy Android *.so lib
@@ -293,61 +257,6 @@ script = [
 ]
 
 
-###############################
-# Temporary crate type override
-# - used both by android, macos and ios targets
-###############################
-
-[tasks.setup-crate-type]
-private = true
-script_runner = "@duckscript"
-script = [
-    """
-    toml = readfile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/native/${CARGO_MAKE_CRATE_CURRENT_WORKSPACE_MEMBER}/Cargo.toml
-    crate_type = set ""
-    os = get_env TARGET_OS
-    is_android = eq ${os} "android"
-    is_ios = eq ${os} "ios"
-    is_macos = eq ${os} "macos"
-    if ${is_android}
-      crate_type = set "cdylib"
-    elseif ${is_ios}
-      crate_type = set "staticlib"
-    elseif ${is_macos}
-      crate_type = set "cdylib"
-    else
-      crate_type = set "rlib"
-    end
-    val = replace ${toml} "staticlib" ${crate_type}
-    result = writefile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/native/${CARGO_MAKE_CRATE_CURRENT_WORKSPACE_MEMBER}/Cargo.toml ${val}
-    assert ${result}
-    """,
-]
-
-[tasks.restore-crate-type]
-private = true
-script_runner = "@duckscript"
-script = [
-    """
-    toml = readfile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/native/${CARGO_MAKE_CRATE_CURRENT_WORKSPACE_MEMBER}/Cargo.toml
-    crate_type = set ""
-    os = get_env TARGET_OS
-    is_android = eq ${os} "android"
-    is_ios = eq ${os} "ios"
-    if ${is_android}
-      crate_type = set "cdylib"
-    elseif ${is_ios}
-      crate_type = set "staticlib"
-    elseif ${is_macos}
-      crate_type = set "cdylib"
-    else
-      crate_type = set "rlib"
-    end
-    val = replace ${toml} ${crate_type} "staticlib"
-    result = writefile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/native/${CARGO_MAKE_CRATE_CURRENT_WORKSPACE_MEMBER}/Cargo.toml ${val}
-    assert ${result}
-    """,
-]
 
 ###############################
 # Ensure build tools needed
