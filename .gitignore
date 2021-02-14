@@ -53,3 +53,5 @@ native/**/binding.h
 **/android/src/main/jniLibs/
 **/ios/Classes/binding.h
 **/ios/libworkout_ffi.a
+**/macos/Classes/binding.h
+**/macos/libworkout_ffi.dylib
