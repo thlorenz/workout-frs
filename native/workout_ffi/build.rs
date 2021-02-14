@@ -1,34 +1,74 @@
-use dart_bindgen::{config::*, Codegen};
+use std::{
+    fs::File,
+    io::Write,
+    process::{exit, Command, Output},
+};
+
+fn write_cmd_output(cmd: &str, output: Output, file_path: &str) {
+    if !output.status.success() {
+        format!(
+            "{} failed: \n{}",
+            cmd,
+            std::str::from_utf8(&output.stderr).unwrap()
+        );
+        exit(1);
+    }
+    let mut file = File::create(&file_path).expect("Unable to open binding.h");
+    file.write_all(&output.stdout)
+        .expect("Unable to write to binding.h");
+}
 
 fn main() {
+    //
+    // Config
+    //
     let crate_dir = std::env::var("CARGO_MANIFEST_DIR").unwrap();
-    let config = cbindgen::Config {
-        language: cbindgen::Language::C,
-        ..Default::default()
-    };
-    cbindgen::Builder::new()
-        .with_crate(crate_dir)
-        .with_config(config)
-        .generate()
-        .expect("Unable to generate bindings")
-        .write_to_file("binding.h");
+    let package_dir = format!(
+        "{}/../../packages/{}",
+        crate_dir,
+        std::env::var("CARGO_PKG_NAME").expect("CARGO_PKG_NAME")
+    );
+    let binding_h = format!("{}/binding.h", crate_dir);
+    let lib_name = "libworkout_ffi";
+    let dart_ffi = format!("{}/lib/ffi.dart", package_dir);
 
-    let config = DynamicLibraryConfig {
-        ios: DynamicLibraryCreationMode::Executable.into(),
-        android: DynamicLibraryCreationMode::open("libworkout_ffi.so").into(),
-        macos: DynamicLibraryCreationMode::open("libworkout_ffi.dylib").into(),
-        ..Default::default()
-    };
+    //
+    // cbindgen
+    //
 
-    let codegen = Codegen::builder()
-        .with_src_header("binding.h")
-        .with_lib_name("libworkout")
-        .with_config(config)
-        .build()
-        .unwrap();
+    // cbindgen ./src/lib.rs -c cbindgen.toml | grep -v \#include | uniq
+    let output = Command::new("cbindgen")
+        .arg(format!("{}/src/lib.rs", crate_dir))
+        .arg("-c")
+        .arg(format!("{}/cbindgen.toml", crate_dir))
+        .output()
+        .expect("Failed to create binding.h");
 
-    let bindings = codegen.generate().unwrap();
-    bindings
-        .write_to_file("../../packages/workout_ffi/lib/ffi.dart")
-        .unwrap();
+    // TODO: remove unneeded includes from output if necessary,
+    // as in: `grep -v \#include | uniq`
+    write_cmd_output("bindgen", output, &binding_h);
+
+    //
+    // dart-bindgen
+    //
+
+    //  dart-bindgen --input binding.h \
+    //    --android 'libworkout_ffi.so' --ios executable --macos 'libworkout_ffi.dylib
+    let result = Command::new("dart-bindgen")
+        .arg("--input")
+        .arg(&binding_h)
+        .arg("--output")
+        .arg(&dart_ffi)
+        .arg("--name")
+        .arg(&lib_name)
+        .arg("--android")
+        .arg(&format!("{}.so", &lib_name))
+        .arg("--macos")
+        .arg(&format!("{}.dylib", &lib_name))
+        .arg("--ios")
+        .arg("executable")
+        .output()
+        .expect("Failed to create dart-bindgen");
+
+    assert!(result.status.success());
 }

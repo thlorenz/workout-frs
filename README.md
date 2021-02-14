@@ -2,6 +2,36 @@
 
 Workout Project written in Flutter and Rust.
 
+## Getting Started
+
+Make sure you got [`cargo-make`](https://github.com/sagiegurari/cargo-make) installed (`cargo install cargo-make`).
+
+### Init build deps
+
+```sh
+cargo make init
+```
+
+_NOTE_: We are using `cbindgen` and `dart-bindgen` as global commands. Using them as
+`dep-dependencies` instead via their API causes compile times of the project containing the
+`build.rs` to go up.
+
+### Build and Integrate Android Rust Crate(s)
+
+```sh
+cargo make android
+```
+
+_Similarly for `ios` and `macos`_.
+
+### Start Flutter App
+
+For example to start the app in a MacOS Desktop do:
+
+```sh
+flutter run -d "`flutter devices list | grep macOS | head -c5`"
+```
+
 ## Devlog
 
 Flutter app created via:

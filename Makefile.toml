@@ -13,6 +13,9 @@ RELEASE = true
 DEV = false
 LIB_OUT_DIR = "release"
 
+[tasks.init]
+dependencies = [ "ensure-global-deps" ]
+
 ###############################
 # Android
 ###############################
@@ -341,3 +344,39 @@ script = [
     assert ${result}
     """,
 ]
+
+###############################
+# Ensure build tools needed
+###############################
+[tasks.ensure-global-deps]
+private = true
+category = "Deps"
+dependencies = ["ensure-cbindgen", "ensure-dart-bindgen"]
+
+[tasks.ensure-cbindgen]
+private = true
+category = "Deps"
+command = "cargo"
+args = ["install", "cbindgen"]
+
+[tasks.ensure-dart-bindgen]
+private = true
+category = "Deps"
+command = "cargo"
+args = ["install", "dart-bindgen", "--features", "cli"]
+
+### The below is more correct, but `exec cargo ...` fails
+[tasks.ensure-cargo-global]
+private = true
+script_runner = "@duckscript"
+condition = { env_set = ["CMD", "INSTALL_FLAGS"] }
+script = '''
+    cmd_path = which ${CMD}
+    if is_empty ${cmd_path}
+      exec echo cargo install ${CMD} ${INSTALL_FLAGS}
+      exec cargo install ${CMD} ${INSTALL_FLAGS}
+    else
+      exec echo "already installed at ${cmd_path}"
+    end
+'''
+
