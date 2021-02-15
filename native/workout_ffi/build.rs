@@ -55,18 +55,12 @@ fn main() {
     //  dart-bindgen --input binding.h \
     //    --android 'libworkout_ffi.so' --ios executable --macos 'libworkout_ffi.dylib
     let result = Command::new("dart-bindgen")
-        .arg("--input")
-        .arg(&binding_h)
-        .arg("--output")
-        .arg(&fluid_dart)
-        .arg("--name")
-        .arg(&lib_name)
-        .arg("--android")
-        .arg(&format!("{}.so", &lib_name))
-        .arg("--macos")
-        .arg(&format!("{}.dylib", &lib_name))
-        .arg("--ios")
-        .arg("executable")
+        .args(&["--input", &binding_h])
+        .args(&["--output", &fluid_dart])
+        .args(&["--name", &lib_name])
+        .args(&["--android", &format!("{}.so", &lib_name)])
+        .args(&["--macos", &format!("{}.dylib", &lib_name)])
+        .args(&["--ios", "executable"])
         .output()
         .expect("Failed to create dart-bindgen");
 
