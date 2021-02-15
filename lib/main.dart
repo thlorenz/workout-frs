@@ -30,10 +30,12 @@ class ConfigPage extends StatefulWidget {
 
 class _ConfigPageState extends State<ConfigPage> {
   int _counter = 0;
+  int _counterStruct = 0;
 
   void _incrementCounter() {
     setState(() {
       _counter = widget.workout.add(_counter, 1);
+      _counterStruct = widget.workout.addStruct(_counterStruct, 1).count;
     });
   }
 
@@ -52,6 +54,10 @@ class _ConfigPageState extends State<ConfigPage> {
             ),
             Text(
               '$_counter',
+              style: Theme.of(context).textTheme.headline4,
+            ),
+            Text(
+              '$_counterStruct',
               style: Theme.of(context).textTheme.headline4,
             ),
           ],
