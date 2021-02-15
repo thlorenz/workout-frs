@@ -13,6 +13,6 @@ public class SwiftWorkoutFfiPlugin: NSObject, FlutterPlugin {
   }
 
   public static func dummyMethodToEnforceBundling() {
-    add(40, 2)
+    add_struct(40, 2)
   }
 }

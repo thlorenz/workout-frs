@@ -10,3 +10,7 @@ crate-type = ["cdylib", "staticlib"]
 
 [dependencies]
 workout = { path = "../workout" }
+safer-ffi = { version = "0.0.5", features = ["proc_macros"] }
+
+[features]
+generate-bindings = ["safer-ffi/headers"]
