@@ -30,7 +30,7 @@ fn main() {
     );
     let binding_h = format!("{}/binding.h", crate_dir);
     let lib_name = "libworkout_ffi";
-    let dart_ffi = format!("{}/lib/ffi.dart", package_dir);
+    let fluid_dart = format!("{}/lib/fluid.dart", package_dir);
 
     //
     // cbindgen
@@ -58,7 +58,7 @@ fn main() {
         .arg("--input")
         .arg(&binding_h)
         .arg("--output")
-        .arg(&dart_ffi)
+        .arg(&fluid_dart)
         .arg("--name")
         .arg(&lib_name)
         .arg("--android")
