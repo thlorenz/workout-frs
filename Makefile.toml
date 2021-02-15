@@ -14,7 +14,37 @@ DEV = false
 LIB_OUT_DIR = "release"
 
 [tasks.init]
-dependencies = [ "ensure-global-deps" ]
+dependencies = [ "ensure-global-deps", "bindings" ]
+
+##############################
+# Bindings
+##############################
+[tasks.bindings]
+description = "Generates binding header and dart-ffi"
+dependencies = [ "generate-headers", "copy-headers" ]
+
+[tasks.generate-headers]
+private=true
+command = "cargo"
+args = [
+  "test",
+  "--features",
+  "generate-bindings",
+  "--",
+  "generate_headers"
+]
+
+[tasks.copy-headers]
+private=true
+script_runner = "@duckscript"
+condition = { platforms = ["mac"] }
+script = """
+  cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/native/${CARGO_MAKE_CRATE_CURRENT_WORKSPACE_MEMBER}/binding.h \
+  ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/packages/${CARGO_MAKE_CRATE_FS_NAME}/ios/Classes/binding.h
+
+  cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/native/${CARGO_MAKE_CRATE_CURRENT_WORKSPACE_MEMBER}/binding.h \
+  ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/packages/${CARGO_MAKE_CRATE_FS_NAME}/macos/Classes/binding.h
+"""
 
 ###############################
 # Android
@@ -56,12 +86,12 @@ dependencies = [
 [tasks.pre-android]
 description = "Create android/src/main/jniLibs/* folders for each Android platform"
 script_runner = "@duckscript"
-script = '''
+script = """
     mkdir ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/packages/${CARGO_MAKE_CRATE_FS_NAME}/android/src/main/jniLibs/arm64-v8a
     mkdir ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/packages/${CARGO_MAKE_CRATE_FS_NAME}/android/src/main/jniLibs/armeabi-v7a
     mkdir ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/packages/${CARGO_MAKE_CRATE_FS_NAME}/android/src/main/jniLibs/x86
     mkdir ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/packages/${CARGO_MAKE_CRATE_FS_NAME}/android/src/main/jniLibs/x86_64
-'''
+"""
 
 #
 # 2. Build Android Target(s)
@@ -191,16 +221,10 @@ args = ["lipo", "--release"]
 [tasks.post-ios]
 script_runner = "@duckscript"
 condition = { platforms = ["mac"] }
-script = [
-    """
-    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/target/universal/${LIB_OUT_DIR}/lib${CARGO_MAKE_CRATE_FS_NAME}.a \
-    ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/packages/${CARGO_MAKE_CRATE_FS_NAME}/ios/lib${CARGO_MAKE_CRATE_FS_NAME}.a
-    """,
-    """
-    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/native/${CARGO_MAKE_CRATE_CURRENT_WORKSPACE_MEMBER}/binding.h \
-    ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/packages/${CARGO_MAKE_CRATE_FS_NAME}/ios/Classes/binding.h
-    """,
-]
+script = """
+  cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/target/universal/${LIB_OUT_DIR}/lib${CARGO_MAKE_CRATE_FS_NAME}.a \
+  ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/packages/${CARGO_MAKE_CRATE_FS_NAME}/ios/lib${CARGO_MAKE_CRATE_FS_NAME}.a
+"""
 
 ###############################
 # MAC OS
@@ -229,16 +253,10 @@ args = ["build", "--release"]
 [tasks.post-macos]
 script_runner = "@duckscript"
 condition = { platforms = ["mac"] }
-script = [
-    """
-    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/target/${LIB_OUT_DIR}/lib${CARGO_MAKE_CRATE_FS_NAME}.dylib \
-    ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/packages/${CARGO_MAKE_CRATE_FS_NAME}/macos/lib${CARGO_MAKE_CRATE_FS_NAME}.dylib
-    """,
-    """
-    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/native/${CARGO_MAKE_CRATE_CURRENT_WORKSPACE_MEMBER}/binding.h \
-    ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/packages/${CARGO_MAKE_CRATE_FS_NAME}/macos/Classes/binding.h
-    """,
-]
+script = """
+  cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/target/${LIB_OUT_DIR}/lib${CARGO_MAKE_CRATE_FS_NAME}.dylib \
+  ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/packages/${CARGO_MAKE_CRATE_FS_NAME}/macos/lib${CARGO_MAKE_CRATE_FS_NAME}.dylib
+"""
 
 ###############################
 # Copy Android *.so lib
@@ -249,12 +267,10 @@ script = [
 private = true
 condition = { env_set = ["ANDROID_TARGET", "JNI_LIB_DIR"] }
 script_runner = "@duckscript"
-script = [
-    """
-    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/target/${ANDROID_TARGET}/${LIB_OUT_DIR}/lib${CARGO_MAKE_CRATE_FS_NAME}.so \
-    ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/packages/${CARGO_MAKE_CRATE_FS_NAME}/android/src/main/jniLibs/${JNI_LIB_DIR}/lib${CARGO_MAKE_CRATE_FS_NAME}.so
-    """,
-]
+script = """
+  cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/target/${ANDROID_TARGET}/${LIB_OUT_DIR}/lib${CARGO_MAKE_CRATE_FS_NAME}.so \
+  ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/packages/${CARGO_MAKE_CRATE_FS_NAME}/android/src/main/jniLibs/${JNI_LIB_DIR}/lib${CARGO_MAKE_CRATE_FS_NAME}.so
+"""
 
 
 
@@ -264,13 +280,7 @@ script = [
 [tasks.ensure-global-deps]
 private = true
 category = "Deps"
-dependencies = ["ensure-cbindgen", "ensure-dart-bindgen"]
-
-[tasks.ensure-cbindgen]
-private = true
-category = "Deps"
-command = "cargo"
-args = ["install", "cbindgen"]
+dependencies = ["ensure-dart-bindgen"]
 
 [tasks.ensure-dart-bindgen]
 private = true
@@ -283,7 +293,7 @@ args = ["install", "dart-bindgen", "--features", "cli"]
 private = true
 script_runner = "@duckscript"
 condition = { env_set = ["CMD", "INSTALL_FLAGS"] }
-script = '''
+script = """
     cmd_path = which ${CMD}
     if is_empty ${cmd_path}
       exec echo cargo install ${CMD} ${INSTALL_FLAGS}
@@ -291,5 +301,5 @@ script = '''
     else
       exec echo "already installed at ${cmd_path}"
     end
-'''
+"""
 

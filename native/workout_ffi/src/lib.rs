@@ -1,23 +1,27 @@
-// TODO: just here to test flutter integration
-#[no_mangle]
-pub extern "C" fn add(a: i64, b: i64) -> i64 {
-    workout::add(a, b)
-}
+#[cfg(feature = "generate-bindings")]
+mod binding;
 
-#[repr(C)]
-pub struct Counter {
-    pub count: i64,
-}
-// Structs have to live in the same crate as otherwise cbindgen
-// doesn't find them.
+use safer_ffi::prelude::*;
+
+#[derive_ReprC]
 #[repr(C)]
 pub struct AppState {
-    pub counter: Counter,
+    pub count: i64,
+    pub msg: safer_ffi::String,
+    pub err: safer_ffi::String,
 }
 
-#[no_mangle]
-pub extern "C" fn add_struct(a: i64, b: i64) -> AppState {
+#[ffi_export]
+fn add_struct(a: i64, b: i64) -> AppState {
+    let count = a + b;
+    let err = if count < 5 {
+        "No Error"
+    } else {
+        "Count should not go beyond 4"
+    };
     AppState {
-        counter: Counter { count: a + b },
+        count,
+        msg: format!("Rust counted {} times.", count).into(),
+        err: err.to_string().into(),
     }
 }
