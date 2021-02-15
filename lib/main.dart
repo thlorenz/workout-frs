@@ -35,7 +35,8 @@ class _ConfigPageState extends State<ConfigPage> {
   void _incrementCounter() {
     setState(() {
       _counter = widget.workout.add(_counter, 1);
-      _counterStruct = widget.workout.addStruct(_counterStruct, 1).count;
+      _counterStruct =
+          widget.workout.addStruct(_counterStruct, 1).counter.count;
     });
   }
 
